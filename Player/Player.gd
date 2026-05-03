@@ -13,7 +13,6 @@ var is_dead := false
 var is_boxed := false
 var is_morphing := false
 var box_uses_left := max_box_uses
-
 var _morph_timer := 0.0
 var _box_timer := 0.0
 var _cooldown_timer := 0.0
@@ -99,6 +98,7 @@ func _unmorph():
 	# Swap visuals back
 	_sprite.visible = true
 	_box_rect.visible = false
+	
 
 func restore_box_use():
 	box_uses_left = min(box_uses_left + 1, max_box_uses)
@@ -107,8 +107,6 @@ func update_animation(input):
 	if is_dead:
 		_sprite.play("death")
 		return
-	# During morph delay, flashing is handled in _tick_box
-	# so just skip animation updates
 	if is_morphing or is_boxed:
 		return
 	if input != Vector2.ZERO:
@@ -117,3 +115,12 @@ func update_animation(input):
 			_sprite.play(new_anim)
 	else:
 		_sprite.play("idle_" + direction)
+		
+func die() -> void:
+	if is_dead:
+		return
+	is_dead = true
+	velocity = Vector2.ZERO
+	update_animation(Vector2.ZERO)
+	await get_tree().create_timer(0.8, false, false, true).timeout
+	SpottedScreen.show_screen()
