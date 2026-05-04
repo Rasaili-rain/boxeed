@@ -120,6 +120,7 @@ func die() -> void:
 	if is_dead:
 		return
 	is_dead = true
+	set_physics_process(false)   # stop all movement/input processing
 	velocity = Vector2.ZERO
 	update_animation(Vector2.ZERO)
 	await get_tree().create_timer(0.8, false, false, true).timeout

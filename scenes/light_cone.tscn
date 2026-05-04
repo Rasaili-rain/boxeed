@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://1ff6p6qfjcak"]
+
+[ext_resource type="Script" uid="uid://bhr3e0ogacq4s" path="res://scripts/light_cone.gd" id="1_baud6"]
+
+[node name="LightCone" type="Area2D" unique_id=309316327]
+script = ExtResource("1_baud6")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=1375689010]
+position = Vector2(0, 1)
+scale = Vector2(2.7799644, 4.8983)
+polygon = PackedVector2Array(0, 0, -10.072071, 10.003469, 9.352638, 10.003469)
+
+[node name="Polygon2D" type="Polygon2D" parent="." unique_id=782920638]
+polygon = PackedVector2Array(0, 0, -28, 50, 26, 50)

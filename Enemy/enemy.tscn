@@ -275,6 +275,15 @@ radius = 13.152946
 
 [node name="Enemy" type="CharacterBody2D" unique_id=874206574 groups=["enemy"]]
 script = ExtResource("1_px1sc")
+speed = null
+start_direction = null
+cone_range = null
+cone_half_angle = null
+sweep_speed = null
+sweep_amplitude = null
+cone_color_patrol = null
+cone_color_alert = null
+search_duration = null
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=297438608 groups=["enemy"]]
 sprite_frames = SubResource("SpriteFrames_r2ets")
@@ -288,14 +297,13 @@ shape = SubResource("CircleShape2D_2pb1h")
 
 [node name="VisionCone" type="Node2D" parent="." unique_id=676801310 groups=["enemy"]]
 
-[node name="DetectionTimer" type="Timer" parent="." unique_id=2063128603]
-one_shot = true
-
 [node name="WaypointTimer" type="Timer" parent="." unique_id=1570976661]
 one_shot = true
+autostart = true
 
 [node name="ScanTimer" type="Timer" parent="." unique_id=1576831950]
 one_shot = true
+autostart = true
 
 [node name="SearchTimer" type="Timer" parent="." unique_id=229972247]
 one_shot = true

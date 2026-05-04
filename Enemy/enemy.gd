@@ -1,83 +1,94 @@
 extends CharacterBody2D
 
-# ── Speed ────────────────────────────────────────────────────
 @export var speed : float = 80.0
 @export var start_direction : Vector2 = Vector2(1, 0.7)
 
-# ── Vision cone ──────────────────────────────────────────────
-@export var cone_range             : float = 130.0
-@export var cone_half_angle        : float = 35.0
-@export var sweep_speed            : float = 1.2
-@export var sweep_amplitude        : float = 15.0
-@export var cone_color_patrol      : Color = Color(1.00, 1.00, 0.00, 0.22)
-@export var cone_color_alert       : Color = Color(1.00, 0.00, 0.00, 0.50)
+@export var cone_range         : float = 130.0
+@export var cone_half_angle    : float = 35.0
+@export var sweep_speed        : float = 1.2
+@export var sweep_amplitude    : float = 15.0
+@export var cone_color_patrol  : Color = Color(1.00, 1.00, 0.00, 0.22)
+@export var cone_color_alert   : Color = Color(1.00, 0.00, 0.00, 0.50)
 
-# ── Detection ────────────────────────────────────────────────
-@export var detection_time    : float = 2.0
-@export var search_duration   : float = 4.0
+@export var search_duration    : float = 4.0
+@export var waypoint_radius    : float = 4.0   # how close = "reached"
+@export var roam_radius        : float = 80.0  # how far waypoints spawn
 
-# =============================================================
 enum State { ROAM, CHASE, SEARCH }
 var _state : State = State.ROAM
 
 var _facing          : Vector2 = Vector2.RIGHT
 var _sweep_t         : float   = 0.0
 var _cone_offset_rad : float   = 0.0
-var _player_in_cone  : bool    = false
 var _last_known_pos  : Vector2 = Vector2.ZERO
-var _scan_angle_acc  : float   = 0.0
+var _search_angles   : Array   = []
+var _search_step     : int     = 0
+var _waypoint        : Vector2 = Vector2.ZERO
+var _stuck_timer     : float   = 0.0
+var _last_pos        : Vector2 = Vector2.ZERO
 
-@onready var _sprite       : AnimatedSprite2D = $AnimatedSprite2D
-@onready var _ray          : RayCast2D        = $VisionRay
-@onready var _cone_node    : Node2D           = $VisionCone
-@onready var _detect_timer : Timer            = $DetectionTimer
-@onready var _search_timer : Timer            = $SearchTimer
+@onready var _sprite        : AnimatedSprite2D = $AnimatedSprite2D
+@onready var _cone_node     : Node2D           = $VisionCone
+@onready var _ray           : RayCast2D        = $VisionRay
+@onready var _waypoint_timer: Timer            = $WaypointTimer
+@onready var _scan_timer    : Timer            = $ScanTimer
+@onready var _search_timer  : Timer            = $SearchTimer
 
 
-# =============================================================
 func _ready() -> void:
-	velocity = start_direction.normalized() * speed
+	_facing = start_direction.normalized()
+	velocity = _facing * speed
 
-	_detect_timer.one_shot = true
-	_detect_timer.timeout.connect(_on_detection_confirmed)
-
+	_waypoint_timer.timeout.connect(_pick_waypoint)
+	_scan_timer.timeout.connect(_on_scan_timer)
 	_search_timer.one_shot = true
-	_search_timer.timeout.connect(_on_search_done)
+	_search_timer.timeout.connect(_on_search_step)
 
 	_cone_node.draw.connect(_draw_cone)
+	_pick_waypoint()
 
 
-# =============================================================
 func _physics_process(delta: float) -> void:
 	_update_sweep(delta)
 	_check_vision()
 
 	match _state:
-		State.ROAM:   _do_roam()
+		State.ROAM:   _do_roam(delta)
 		State.CHASE:  _do_chase()
-		State.SEARCH: _do_search(delta)
+		State.SEARCH: _do_search()
 
 	_cone_node.queue_redraw()
 
 
-# =============================================================
-#  ROAM  –  bounce off walls
-# =============================================================
-func _do_roam() -> void:
+# ── movement states ───────────────────────────────────────────────
+
+func _do_roam(delta: float) -> void:
+	var to_wp := _waypoint - global_position
+
+	# reached waypoint — pick a new one
+	if to_wp.length() < waypoint_radius:
+		_pick_waypoint()
+		return
+
+	# stuck check — if we barely moved in 0.5s, pick new waypoint
+	_stuck_timer += delta
+	if _stuck_timer > 0.5:
+		_stuck_timer = 0.0
+		if global_position.distance_to(_last_pos) < 2.0:
+			_pick_waypoint()
+		_last_pos = global_position
+
+	# steer toward waypoint, slide along walls naturally
+	velocity = to_wp.normalized() * speed
 	move_and_slide()
-	for i in get_slide_collision_count():
-		var col := get_slide_collision(i)
-		velocity = velocity.bounce(col.get_normal()).rotated(randf_range(-0.08, 0.08))
+
 	if velocity.length() > 1.0:
 		_facing = velocity.normalized()
 		_play_walk_animation(_facing)
 
 
-# =============================================================
-#  CHASE
-# =============================================================
 func _do_chase() -> void:
-	var to_lkp : Vector2 = _last_known_pos - global_position
+	var to_lkp := _last_known_pos - global_position
 	if to_lkp.length() <= 8.0:
 		_enter_search()
 		return
@@ -87,106 +98,107 @@ func _do_chase() -> void:
 	_play_walk_animation(_facing)
 
 
+func _do_search() -> void:
+	velocity = Vector2.ZERO
+
+
+# ── waypoint picking ──────────────────────────────────────────────
+
+func _pick_waypoint() -> void:
+	# try up to 8 random directions, pick first one not blocked by wall
+	for _i in range(8):
+		var angle := randf() * TAU
+		var candidate := global_position + Vector2(cos(angle), sin(angle)) * roam_radius
+		_ray.target_position = candidate - global_position
+		_ray.force_raycast_update()
+		if not _ray.is_colliding():
+			_waypoint = candidate
+			return
+	# all blocked — just move away from current facing (corner escape)
+	var escape := -_facing.rotated(PI * 0.5)
+	_waypoint = global_position + escape * roam_radius
+
+
+func _on_scan_timer() -> void:
+	if _state == State.ROAM:
+		_pick_waypoint()
+
+
+# ── state transitions ─────────────────────────────────────────────
+
 func _enter_chase(lkp: Vector2) -> void:
 	_last_known_pos = lkp
 	_state = State.CHASE
-	_detect_timer.stop()
-	_player_in_cone = false
-
-
-# =============================================================
-#  SEARCH  –  spin in place, then go back to roaming
-# =============================================================
-func _do_search(delta: float) -> void:
-	velocity = Vector2.ZERO
-	_scan_angle_acc += delta * 1.5
-	_facing = Vector2(cos(_scan_angle_acc), sin(_scan_angle_acc))
-	_play_walk_animation(_facing)
+	_waypoint_timer.stop()
 
 
 func _enter_search() -> void:
 	velocity = Vector2.ZERO
 	_state = State.SEARCH
-	_scan_angle_acc = _facing.angle()
-	_search_timer.start(search_duration)
+	_search_step = 0
+
+	var base := _facing.angle()
+	_search_angles = [
+		base - deg_to_rad(sweep_amplitude * 1.5),
+		base,
+		base + deg_to_rad(sweep_amplitude * 1.5),
+		base,
+	]
+	_facing = Vector2(cos(_search_angles[0]), sin(_search_angles[0]))
+	_play_walk_animation(_facing)
+	_search_timer.start(search_duration / _search_angles.size())
 
 
-func _on_search_done() -> void:
-	if _state == State.SEARCH:
-		# Resume bouncing in the direction we're now facing
-		velocity = _facing * speed
+func _on_search_step() -> void:
+	if _state != State.SEARCH:
+		return
+	_search_step += 1
+	if _search_step >= _search_angles.size():
 		_state = State.ROAM
+		velocity = _facing * speed
+		_pick_waypoint()
+		_waypoint_timer.start()
+		return
+	var a :float= _search_angles[_search_step]
+	_facing = Vector2(cos(a), sin(a))
+	_play_walk_animation(_facing)
+	_search_timer.start(search_duration / _search_angles.size())
 
 
-# =============================================================
-#  VISION
-# =============================================================
-#func _check_vision() -> void:
-	#var player := _get_player()
-	#if player == null or player.is_dead or player.is_boxed:
-		#_on_player_lost()
-		#return
-#
-	#var to_player : Vector2 = player.global_position - global_position
-	#if to_player.length() > cone_range:
-		#_on_player_lost()
-		#return
-#
-	#var cone_dir  : Vector2 = Vector2(
-		#cos(_facing.angle() + _cone_offset_rad),
-		#sin(_facing.angle() + _cone_offset_rad)
-	#)
-	#var angle_diff : float = abs(rad_to_deg(to_player.angle_to(cone_dir)))
-	#if angle_diff > cone_half_angle:
-		#_on_player_lost()
-		#return
-#
-	#_ray.target_position = to_player
-	#_ray.force_raycast_update()
-	#if _ray.is_colliding():
-		#_on_player_lost()
-		#return
-#
-	## ── Player spotted ──
-	#_last_known_pos = player.global_position
-	#print("player is spotted")
-	#if not _player_in_cone:
-		#_player_in_cone = true
-		#_detect_timer.wait_time = detection_time
-		#_detect_timer.start()
-		
+# ── vision ────────────────────────────────────────────────────────
+
 func _check_vision() -> void:
 	var player := _get_player()
-	if player == null:
+	if player == null or player.is_dead:
 		return
-	var dist = global_position.distance_to(player.global_position)
-	if dist < cone_range:
-		_last_known_pos = player.global_position
-		if not _player_in_cone:
-			_player_in_cone = true
-			_detect_timer.wait_time = detection_time
-			_detect_timer.start()
-	else:
-		_on_player_lost()
-
-
-func _on_player_lost() -> void:
-	if not _player_in_cone:
+	if player.is_boxed or player.is_morphing:
 		return
-	_player_in_cone = false
-	_detect_timer.stop()
+	if not _is_in_cone(player.global_position):
+		return
+
+	# check ray — don't detect through walls
+	_ray.target_position = player.global_position - global_position
+	_ray.force_raycast_update()
+	if _ray.is_colliding():
+		var hit := _ray.get_collider()
+		if hit != player:
+			return
+
+	_last_known_pos = player.global_position
+	_enter_chase(_last_known_pos)
+	player.die()
 
 
-func _on_detection_confirmed() -> void:
-	var player := _get_player()
-	if player != null and not player.is_dead:
-		_enter_chase(_last_known_pos)
-		player.die()
+func _is_in_cone(target_pos: Vector2) -> bool:
+	var to_target := target_pos - global_position
+	if to_target.length() > cone_range:
+		return false
+	var diff := absf(angle_difference(_facing.angle() + _cone_offset_rad, to_target.angle()))
+	return diff <= deg_to_rad(cone_half_angle)
 
 
-# =============================================================
-#  SWEEP
-# =============================================================
+# ── sweep ─────────────────────────────────────────────────────────
+
 func _update_sweep(delta: float) -> void:
 	match _state:
 		State.ROAM:
@@ -196,9 +208,8 @@ func _update_sweep(delta: float) -> void:
 			_cone_offset_rad = 0.0
 
 
-# =============================================================
-#  ANIMATION
-# =============================================================
+# ── helpers ───────────────────────────────────────────────────────
+
 func _play_walk_animation(dir: Vector2) -> void:
 	var anim : String
 	if abs(dir.x) >= abs(dir.y):
@@ -209,14 +220,11 @@ func _play_walk_animation(dir: Vector2) -> void:
 		_sprite.play(anim)
 
 
-# =============================================================
-#  CONE DRAW
-# =============================================================
 func _draw_cone() -> void:
 	var segments   : int   = 28
 	var half_rad   : float = deg_to_rad(cone_half_angle)
 	var base_angle : float = _facing.angle() + _cone_offset_rad
-	var col : Color = cone_color_alert if _state != State.ROAM else cone_color_patrol
+	var col        : Color = cone_color_alert if _state != State.ROAM else cone_color_patrol
 
 	var points := PackedVector2Array()
 	points.append(Vector2.ZERO)
@@ -227,9 +235,6 @@ func _draw_cone() -> void:
 	_cone_node.draw_colored_polygon(points, col)
 
 
-# =============================================================
-#  UTILITY
-# =============================================================
 func _get_player() -> CharacterBody2D:
 	var players := get_tree().get_nodes_in_group("player")
 	return players[0] as CharacterBody2D if players.size() > 0 else null

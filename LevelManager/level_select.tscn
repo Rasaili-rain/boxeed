@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://dohnrqfbpynw5"]
+
+[ext_resource type="Script" uid="uid://cjqe3mhtmy2si" path="res://LevelManager/level_select.gd" id="1_haril"]
+
+[node name="LevelSelect" type="Control" unique_id=748557530]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_haril")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=387202789]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=418845133]
+layout_mode = 2
+text = "Select Level"
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer" unique_id=28586632]
+layout_mode = 2
+columns = 4
+
+[node name="Button" type="Button" parent="VBoxContainer" unique_id=2077719963]
+layout_mode = 2
+text = "Back"
+
+[connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_button_pressed"]
