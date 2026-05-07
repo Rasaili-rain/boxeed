@@ -63,7 +63,12 @@ box_morph={
 
 [layer_names]
 
-2d_physics/layer_10="walls"
+2d_physics/layer_1="player"
+2d_physics/layer_2="walls"
+2d_physics/layer_3="pickable"
+2d_physics/layer_4="enemy"
+2d_physics/layer_5="door"
+2d_physics/layer_10="layer 10"
 
 [physics]
 

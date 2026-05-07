@@ -43,6 +43,7 @@ animations = [{
 }]
 
 [node name="Key" type="Area2D" unique_id=1577038894]
+collision_layer = 4
 script = ExtResource("1_fttkb")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1421686084]

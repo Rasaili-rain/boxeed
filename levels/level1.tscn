@@ -252,7 +252,8 @@ texture = ExtResource("3_b3oru")
 7:21/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 
 [sub_resource type="TileSet" id="TileSet_pdpul"]
-physics_layer_0/collision_layer = 513
+physics_layer_0/collision_layer = 2
+physics_layer_0/collision_mask = 0
 sources/0 = SubResource("TileSetAtlasSource_61w3m")
 
 [node name="Level1" type="Node2D" unique_id=915003979]
@@ -262,8 +263,8 @@ tile_map_data = PackedByteArray("AAABAAAAAQAFAAUAAAABAAEAAQAFAAUAAAABAAIAAQAFAAU
 tile_set = SubResource("TileSet_b3oru")
 
 [node name="Player" parent="." unique_id=723202244 instance=ExtResource("2_b3oru")]
-position = Vector2(-418, 219)
-collision_mask = 513
+position = Vector2(422, -5)
+collision_mask = 2
 speed = 200
 box_speed = 60
 

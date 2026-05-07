@@ -274,6 +274,8 @@ animations = [{
 radius = 13.152946
 
 [node name="Enemy" type="CharacterBody2D" unique_id=874206574 groups=["enemy"]]
+collision_layer = 8
+collision_mask = 2
 script = ExtResource("1_px1sc")
 speed = null
 start_direction = null

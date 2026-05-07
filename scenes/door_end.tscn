@@ -33,6 +33,7 @@ size = Vector2(21.324158, 21.462341)
 
 [node name="End Door" type="Area2D" unique_id=787818108]
 scale = Vector2(2.4197268, 2.7955947)
+collision_layer = 16
 script = ExtResource("1_ptyju")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=729824592]
@@ -46,6 +47,9 @@ sprite_frames = SubResource("SpriteFrames_8hd6v")
 animation = &"open"
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=2040712054]
+visible = false
+collision_layer = 2
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1783830255]
 position = Vector2(0.41326976, -1.073117)
