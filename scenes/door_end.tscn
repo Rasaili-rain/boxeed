@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://c1mf3qb1010yb" path="res://scripts/door_end.gd" id="1_ptyju"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ua5ty"]
-size = Vector2(20.331757, 22.535454)
+size = Vector2(11.571554, 16.45446)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_61w3m"]
 atlas = ExtResource("1_f4c3f")
@@ -29,14 +29,14 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ptyju"]
-size = Vector2(20.331745, 6.0809956)
+size = Vector2(21.324158, 21.462341)
 
 [node name="End Door" type="Area2D" unique_id=787818108]
 scale = Vector2(2.4197268, 2.7955947)
 script = ExtResource("1_ptyju")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=729824592]
-position = Vector2(-0.3690796, 1.2519684)
+position = Vector2(0.8265394, -1.7885286)
 shape = SubResource("RectangleShape2D_ua5ty")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=33196580]
@@ -48,6 +48,6 @@ animation = &"open"
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=2040712054]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1783830255]
-position = Vector2(0.4132698, 2.146234)
+position = Vector2(0.41326976, -1.073117)
 shape = SubResource("RectangleShape2D_ptyju")
 debug_color = Color(0.53014827, 0.46575886, 0.86223495, 0.41960785)
