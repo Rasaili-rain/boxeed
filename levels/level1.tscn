@@ -284,23 +284,6 @@ position = Vector2(331, 168)
 waypoint_radius = 4.0
 roam_radius = 80.0
 
-[node name="Label" type="Label" parent="." unique_id=1441433933]
-offset_left = -384.0
-offset_top = 257.0
-offset_right = -270.0
-offset_bottom = 306.0
-scale = Vector2(0.49616447, 0.7511392)
-text = "WASD to move
-"
-
-[node name="Label2" type="Label" parent="." unique_id=1926319822]
-offset_left = -4.0
-offset_top = 259.0
-offset_right = 224.0
-offset_bottom = 308.0
-scale = Vector2(0.49616447, 0.7511392)
-text = "E to box to avoid getting seen"
-
 [node name="Camera2D" type="Camera2D" parent="." unique_id=456376057]
 position = Vector2(7, 104)
 zoom = Vector2(0.5, 0.5)

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bvgpcmk6efadb"]
 
-[ext_resource type="Script" uid="uid://cl8i7f6vc0wdh" path="res://scripts/ligth_cone.gd" id="1_jvb5j"]
+[ext_resource type="Script" uid="uid://cl8i7f6vc0wdh" path="res://scripts/light_cone.gd" id="1_jvb5j"]
 
 [node name="LightCone" type="Node2D" unique_id=262617401]
 script = ExtResource("1_jvb5j")

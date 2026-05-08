@@ -26,24 +26,33 @@ func _ready():
 	box_uses_left = max_box_uses
 	_hud.setup(max_box_uses, box_icon)
 
+
+@export var  push_force := 2.0
+
 func _physics_process(delta):
 	_tick_box(delta)
 
-	var input := Vector2.ZERO
-	input.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
-	input.y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
-	input = input.normalized()
+	var input := Vector2(
+		Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
+		Input.get_action_strength("move_down")  - Input.get_action_strength("move_up")
+	).normalized()
 
-	var current_speed = box_speed if is_boxed else speed
-	if is_morphing:
-		velocity = velocity.lerp(Vector2.ZERO, 0.3)
-	else:
-		velocity = velocity.lerp(input * current_speed, 0.2)
+	var current_speed := box_speed if is_boxed else speed
+
+	velocity = velocity.lerp(Vector2.ZERO, 0.3) if is_morphing else velocity.lerp(input * current_speed, 0.2)
 
 	move_and_slide()
 
+	# ── Push boxes ────────────────────────────────────────
+	for i in get_slide_collision_count():
+		var col := get_slide_collision(i)
+		var body := col.get_collider()
+		if body and body.has_method("push"):
+			body.push(-col.get_normal() * push_force)
+
+	# ── Direction tracking ────────────────────────────────
 	if not is_boxed and not is_morphing:
-		if input.x > 0: direction = "right"
+		if   input.x > 0: direction = "right"
 		elif input.x < 0: direction = "left"
 		elif input.y > 0: direction = "down"
 		elif input.y < 0: direction = "up"

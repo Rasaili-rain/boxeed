@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://daagw077w1fn2"]
+
+[ext_resource type="Script" uid="uid://3h45jbk1kca6" path="res://scripts/push_box.gd" id="1_opm2u"]
+[ext_resource type="Texture2D" uid="uid://dbywc60y70e4j" path="res://assests/box.jpg" id="1_wqf0r"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wqf0r"]
+size = Vector2(22, 22)
+
+[node name="PushBox" type="CharacterBody2D" unique_id=1121555977]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_opm2u")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=887704489]
+position = Vector2(-4.2632564e-14, -1.1920929e-07)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("1_wqf0r")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1930305850]
+shape = SubResource("RectangleShape2D_wqf0r")

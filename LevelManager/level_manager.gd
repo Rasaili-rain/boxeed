@@ -2,6 +2,7 @@ extends Node
 
 const LEVELS = [
 	"res://levels/level_1.tscn",
+	"res://levels/level_2.tscn",
 	"res://levels/level1.tscn"
 	
 	# todo : add more levels
