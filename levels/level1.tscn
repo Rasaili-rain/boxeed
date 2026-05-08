@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://cwsbficeo2br" path="res://scenes/door_end.tscn" id="3_ua5ty"]
 [ext_resource type="PackedScene" uid="uid://xejet4tmdbnp" path="res://scenes/key.tscn" id="5_61w3m"]
 [ext_resource type="PackedScene" uid="uid://u62xtdqahkht" path="res://Enemy/enemy.tscn" id="6_pdpul"]
-[ext_resource type="PackedScene" uid="uid://1ff6p6qfjcak" path="res://scenes/light_cone.tscn" id="7_8hd6v"]
+[ext_resource type="PackedScene" uid="uid://bvgpcmk6efadb" path="res://scenes/light_cone.tscn" id="8_045es"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_pdtm5"]
 texture = ExtResource("1_sjb42")
@@ -263,7 +263,7 @@ tile_map_data = PackedByteArray("AAABAAAAAQAFAAUAAAABAAEAAQAFAAUAAAABAAIAAQAFAAU
 tile_set = SubResource("TileSet_b3oru")
 
 [node name="Player" parent="." unique_id=723202244 instance=ExtResource("2_b3oru")]
-position = Vector2(422, -5)
+position = Vector2(-419, 212)
 collision_mask = 2
 speed = 200
 box_speed = 60
@@ -281,14 +281,8 @@ scale = Vector2(2.17, 2.17)
 
 [node name="Enemy" parent="." unique_id=874206574 instance=ExtResource("6_pdpul")]
 position = Vector2(331, 168)
-
-[node name="LightCone" parent="." unique_id=309316327 instance=ExtResource("7_8hd6v")]
-position = Vector2(298, -82)
-scale = Vector2(2.5489073, 1.633006)
-
-[node name="LightCone2" parent="." unique_id=502780921 instance=ExtResource("7_8hd6v")]
-position = Vector2(55.000015, 160)
-scale = Vector2(2.5489073, 1.633006)
+waypoint_radius = 4.0
+roam_radius = 80.0
 
 [node name="Label" type="Label" parent="." unique_id=1441433933]
 offset_left = -384.0
@@ -310,3 +304,21 @@ text = "E to box to avoid getting seen"
 [node name="Camera2D" type="Camera2D" parent="." unique_id=456376057]
 position = Vector2(7, 104)
 zoom = Vector2(0.5, 0.5)
+
+[node name="LigthCone1" parent="." unique_id=262617401 instance=ExtResource("8_045es")]
+position = Vector2(68, 156)
+rotation = 1.5707964
+scale = Vector2(0.27801386, 1.4245144)
+skew = -0.058889747
+patrol_color = Color(1, 0.95, 0.7, 0.35)
+alert_color = Color(1, 0, 0, 0.5)
+alert_duration = 1.0
+
+[node name="LigthCone2" parent="." unique_id=512668613 instance=ExtResource("8_045es")]
+position = Vector2(301, -81)
+rotation = 1.5707964
+scale = Vector2(0.23324218, 1.4697257)
+skew = -0.07765114
+patrol_color = Color(1, 0.95, 0.7, 0.35)
+alert_color = Color(1, 0, 0, 0.5)
+alert_duration = 1.0
